@@ -50,7 +50,7 @@ func (s *Session) Login(r LoginRequest) (*CapabilityUrls, error) {
 	if err != nil {
 		return nil, err
 	}
-
+	_ = "breakpoint"
 	urls, err := parseCapability(r.URL, capabilities)
 	if err != nil {
 		return nil, errors.New("unable to parse capabilites response: " + string(capabilities) + " Error: " + err.Error())
@@ -65,7 +65,6 @@ func parseCapability(url string, response []byte) (*CapabilityUrls, error) {
 		ReplyText string   `xml:"ReplyText,attr"`
 		Response  string   `xml:"RETS-RESPONSE"`
 	}
-
 	rets := XmlRets{}
 	decoder := GetXmlReader(bytes.NewBuffer(response), false)
 	err := decoder.Decode(&rets)
@@ -76,6 +75,7 @@ func parseCapability(url string, response []byte) (*CapabilityUrls, error) {
 		return nil, errors.New("failed to read urls")
 	}
 
+	_ = "breakpoint"
 	reader := bufio.NewReader(strings.NewReader(rets.Response))
 	scanner := bufio.NewScanner(reader)
 

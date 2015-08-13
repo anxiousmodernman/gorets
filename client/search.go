@@ -11,9 +11,12 @@ import (
 	"encoding/xml"
 	"errors"
 	"fmt"
+	"github.com/paulrosania/go-charset/charset"
 	"io"
 	"net/http"
 	"net/url"
+
+	_ "github.com/paulrosania/go-charset/data"
 )
 
 /* counts */
@@ -156,7 +159,15 @@ func parseCompactResult(body io.ReadCloser, data chan []string, errs chan error,
 		MaxRows:      false,
 	}
 
+	// parser := xml.NewDecoder(body)
+	//parser := GetXmlReader(body, false)
 	parser := xml.NewDecoder(body)
+	// if SelectedCharsetReader != nil {
+	// 	decoder.CharsetReader = SelectedCharsetReader
+	// }
+	parser.CharsetReader = charset.NewReader
+	parser.Strict = true
+
 	var buf bytes.Buffer
 
 	// backgroundable processing of the data into our buffer
@@ -166,6 +177,7 @@ func parseCompactResult(body io.ReadCloser, data chan []string, errs chan error,
 		defer body.Close()
 		for {
 			token, err := parser.Token()
+			fmt.Println("TOKEN IS", token)
 			if err != nil {
 				result.Errors <- err
 			}
@@ -186,6 +198,8 @@ func parseCompactResult(body io.ReadCloser, data chan []string, errs chan error,
 						return
 					}
 				case "RETS":
+					fmt.Println("Final RETS block")
+					// quit <- struct{}{}
 					return
 				}
 			case xml.CharData:
